@@ -1,6 +1,9 @@
 CREATE TABLE order_item(
-	orderitem_id int NOT NULL,
-    quantity int NOT NULL,
-	
-    primary key(orderitem_id)
+	orderItem_id int,
+	customer_id int,
+	product_id int,
+	order_id int,
+	quantity int,
+    
+    primary key(orderItem_id)
 );
