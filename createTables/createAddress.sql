@@ -1,5 +1,5 @@
 CREATE TABLE address(
-	customer_id char(20) not null,
+	customer_id int(20) not null,
 	house_no varchar(10) not null,
 	street varchar(20) ,
 	sub_district varchar(20) not null,

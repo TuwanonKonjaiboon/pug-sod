@@ -1,4 +1,4 @@
 CREATE TABLE customer(
-	customer_id  char(20) NOT NULL,
+	customer_id  int NOT NULL,
     primary key(customer_id)
 );

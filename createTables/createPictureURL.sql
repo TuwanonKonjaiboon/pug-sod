@@ -1,5 +1,5 @@
 CREATE TABLE pictureURL(
-	product_id char(20),
+	product_id int,
     url varchar(512),
     primary key(product_id)
 );
