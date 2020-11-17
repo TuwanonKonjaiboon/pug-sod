@@ -4,8 +4,6 @@ CREATE TABLE user(
     last_name varchar(255) NOT NULL,
     email varchar(255) NOT NULL,
     pass varchar(255) NOT NULL,
-	sex char(1),
-    birth_date date,
-    age int,
+	profile_pic_url varchar(512),
     primary key(user_id)
 );
