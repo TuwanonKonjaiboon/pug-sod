@@ -1,7 +1,7 @@
 CREATE TABLE report(
-report_id CHAR(20) not null,
+report_id int not null,
 report_title VARCHAR(30) not null,
 report_description TEXT(300) not null,
-user_id char(20) not null,
+user_id int not null,
 primary key(report_id)
 );
