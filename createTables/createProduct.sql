@@ -5,7 +5,7 @@ CREATE TABLE product(
 	price INT not null,
 	amount INT not null,
 	product_detail TEXT(500),
-	rating INT not null,
+	avg_rating INT not null,
     primary key(product_id) 
 
 );
