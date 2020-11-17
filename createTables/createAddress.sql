@@ -6,8 +6,6 @@ CREATE TABLE address(
 	district varchar(20) not null,
 	city varchar(20)  not null,
 	zipcode INT(5) not null,
-    primary key(customer_id),
-    foreign key(customer_id) references customer(customer_id) 
-    on delete cascade
+    primary key(customer_id)
 
 );
