@@ -1,9 +1,9 @@
 CREATE TABLE promotion(
-	promotion_id char(20) NOT NULL,
+	promotion_id int NOT NULL,
+    seller_id int NOT NULL,
 	promotion_title VARCHAR(20) NOT NULL,
-	description INT NOT NULL,
-	discount_amount float(24) NOT NULL,
+    promotion_description VARCHAR(300),
+	discount_amount int NOT NULL,
 	min_spent INT NOT NULL,
-	Description VARCHAR(300),
 	primary key(promotion_id)
 )

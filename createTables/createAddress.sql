@@ -5,7 +5,7 @@ CREATE TABLE address(
 	sub_district varchar(20) not null,
 	district varchar(20) not null,
 	city varchar(20)  not null,
-	zipcode INT(5) not null,
+	zipcode CHAR(5) not null,
     primary key(customer_id)
 
 );

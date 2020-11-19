@@ -1,11 +1,13 @@
 CREATE TABLE product(
 
 	product_id int  not null,
+    seller_id int not null,
 	product_title VARCHAR(50) not null,
 	price INT not null,
 	amount INT not null,
 	product_detail TEXT(500),
-	avg_rating INT not null,
+	avg_rating FLOAT(2,1) not null,
+    update_at DATETIME not null, 
     primary key(product_id) 
 
 );

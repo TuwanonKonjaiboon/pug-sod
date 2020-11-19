@@ -1,7 +1,8 @@
 CREATE TABLE payment(
-	transaction_id int NOT NULL,
-    payment_status ENUM('P','C','F') NOT NULL, #pending confirmed failed
+	payment_id int NOT NULL,
+    customer_id int not null,
     method ENUM('1','2','3') NOT NULL,
+    payment_status ENUM('P','S','C') NOT NULL, #pending success canceled
 	create_at DATETIME NOT NULL,
-    primary key (transaction_id)
+    primary key (payment_id)
 );
