@@ -1,4 +1,4 @@
-CREATE TABLE order_item(
+CREATE TABLE orderItem(
 	orderItem_id int not null,
 	customer_id int not null,
 	product_id int not null,
