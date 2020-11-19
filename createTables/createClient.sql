@@ -1,4 +1,4 @@
-CREATE TABLE client_user(
+CREATE TABLE clientUser(
 
 	client_id int NOT NULL,
     sex char(1),
