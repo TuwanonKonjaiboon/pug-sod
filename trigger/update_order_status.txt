@@ -1,0 +1,13 @@
+DELIMITER //
+CREATE TRIGGER update_order_status
+AFTER UPDATE ON payment
+FOR EACH ROW
+BEGIN
+IF (new.status = 'S') THEN
+	UPDATE ordert
+	SET state = 'P'
+	WHERE payment_id = new.payment_id;
+END IF;
+END //
+
+DELIMITER ;
