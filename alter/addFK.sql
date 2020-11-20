@@ -12,8 +12,8 @@ ALTER TABLE productCategory  ADD foreign key (category_id) references category(c
 ALTER TABLE pictureurl  ADD foreign key (product_id) references product(product_id) on delete cascade;
 ALTER TABLE orderItem  ADD foreign key (product_id) references product(product_id) on delete cascade;
 ALTER TABLE orderItem  ADD foreign key (customer_id) references customer(customer_id) on delete cascade;
-ALTER TABLE orderItem  ADD foreign key (order_id) references ordert(order_id);
-ALTER TABLE ordert  ADD foreign key (payment_id) references payment(payment_id);
+ALTER TABLE orderItem  ADD foreign key (order_id) references ordert(order_id) ON DELETE SET NULL;
+ALTER TABLE ordert  ADD foreign key (payment_id) references payment(payment_id) ON DELETE SET NULL;
 ALTER TABLE payment  ADD foreign key (customer_id) references customer(customer_id) on delete cascade;
 ALTER TABLE report  ADD foreign key (user_id) references user(user_id) on delete cascade;
 ALTER TABLE promotion  ADD foreign key (seller_id) references seller(seller_id) on delete cascade;
