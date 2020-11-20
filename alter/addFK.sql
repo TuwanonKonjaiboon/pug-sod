@@ -1,8 +1,8 @@
-ALTER TABLE clientUser ADD foreign key (client_id) references user(user_id) on delete cascade;
+ALTER TABLE client ADD foreign key (client_id) references user(user_id) on delete cascade;
 ALTER TABLE customer ADD foreign key (customer_id) references user(user_id) on delete cascade;
 ALTER TABLE address ADD foreign key (customer_id) references customer(customer_id) on delete cascade;
 ALTER TABLE seller ADD foreign key (seller_id) references user(user_id) on delete cascade;
-ALTER TABLE adminUser  ADD foreign key (admin_id) references user(user_id) on delete cascade;
+ALTER TABLE admin  ADD foreign key (admin_id) references user(user_id) on delete cascade;
 ALTER TABLE shopContact  ADD foreign key (seller_id) references seller(seller_id) on delete cascade;
 ALTER TABLE review  ADD foreign key (product_id) references product(product_id) on delete cascade;
 ALTER TABLE review  ADD foreign key (customer_id) references customer(customer_id) on delete cascade;
