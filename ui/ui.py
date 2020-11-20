@@ -192,6 +192,3 @@ class ui:
     def sendHandle():
         #TODO
         return
-
-ui()
-ui.root.mainloop()
