@@ -1,6 +1,6 @@
 CREATE TABLE ordert(
 
-	order_id int not null,
+	order_id int not null auto_increment,
     order_status ENUM('W','C','P','S','A'), #waiting,confirmed,paid,sent,arrived
     payment_id int,
     tracking_number varchar(20),
