@@ -1,6 +1,7 @@
 # This code is shit, but it's work (on my machine)
 
 from tkinter import *
+from tkinter import ttk
 #from pugsod_mondb import chatdb
 
 
@@ -46,9 +47,8 @@ class ui:
         password = Entry(ui.root, show="*")
         password.pack()
 
-        login_button = Button(ui.root, text="login", command=lambda: ui.loginHandle(
-            user_id.get(), password.get(), label))
-        login_button.pack()
+        ttk.Button(ui.root, text="login", command=lambda: ui.loginHandle(
+            user_id.get(), password.get(), label)).pack()
 
         label = Label(ui.root, fg="red")
         label.pack()
@@ -73,64 +73,53 @@ class ui:
         ui.clear()
         Label(ui.root, text="Welcome " + ui.name).pack()
 
-        Button(ui.root, text="product service",
+        ttk.Button(ui.root, text="product service",
                command=ui.productService).pack()
 
-        Button(ui.root, text="customer service",
+        ttk.Button(ui.root, text="customer service",
                command=ui.customerService).pack()
 
-        Button(ui.root, text="chat", command=ui.chatHandle).pack()
+        ttk.Button(ui.root, text="chat", command=ui.chatHandle).pack()
 
-        Button(ui.root, text="logout", command=ui.startPage).pack()
+        ttk.Button(ui.root, text="logout", command=ui.startPage).pack()
 
     # productService
     @staticmethod
     def productService():
         ui.clear()
 
-        create_product = Button(
-            ui.root, text="create new product", command=ui.newProduct)
-        create_product.pack()
+        ttk.Button(ui.root, text="create new product", command=ui.newProduct).pack()
 
-        view_product = Button(ui.root, text="view products",
-                              command=ui.viewProductHandle)
-        view_product.pack()
+        ttk.Button(ui.root, text="view products",
+                              command=ui.viewProductHandle).pack()
 
-        back = Button(ui.root, text="back", command=ui.homePage)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
     @staticmethod
     def newProduct():
         ui.clear()
 
-        title_label = Label(ui.root, text="title")
-        title_label.pack()
+        Label(ui.root, text="title").pack()
         title = Entry(ui.root)
         title.pack()
 
-        price_label = Label(ui.root, text="price")
-        price_label.pack()
+        Label(ui.root, text="price").pack()
         price = Entry(ui.root)
         price.insert(INSERT, "0")
         price.pack()
 
-        amount_label = Label(ui.root, text="amount")
-        amount_label.pack()
+        Label(ui.root, text="amount").pack()
         amount = Entry(ui.root)
         amount.insert(INSERT, "1")
         amount.pack()
 
-        detail_label = Label(ui.root, text="detail")
-        detail_label.pack()
+        Label(ui.root, text="detail").pack()
         detail = Entry(ui.root)
         detail.pack()
 
-        create_button = Button(ui.root, text="create", command=lambda: ui.createProductHandle(
-            title.get(), int(price.get()), int(amount.get()), detail.get()))
-        create_button.pack()
+        ttk.Button(ui.root, text="create", command=lambda: ui.createProductHandle(title.get(), int(price.get()), int(amount.get()), detail.get())).pack()
 
-        back = Button(ui.root, text="back", command=ui.productService)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.productService).pack()
 
     @staticmethod
     def createProductHandle(title, price, amount, detail):
@@ -147,8 +136,7 @@ class ui:
         for product in ui.products:
             ui.productDetail(product)
 
-        back = Button(ui.root, text="back", command=ui.productService)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.productService).pack()
 
     @staticmethod
     def productDetail(product):
@@ -166,9 +154,7 @@ class ui:
         detail = Label(ui.root, text=product[4])
         detail.pack()
 
-        delete = Button(ui.root, text="delete",
-                        command=lambda: ui.deleteProductHandle(product[0]))
-        delete.pack()
+        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteProductHandle(product[0])).pack()
 
     @staticmethod
     def deleteProductHandle(pid):
@@ -183,17 +169,15 @@ class ui:
     @staticmethod
     def customerService():
         ui.clear()
+        
         search = Entry(ui.root)
         search.pack(pady=10)
-        search_button = Button(ui.root, text="search",
-                               command=lambda: ui.searchHandle(search.get()))
-        search_button.pack()
+        
+        ttk.Button(ui.root, text="search",command=lambda: ui.searchHandle(search.get())).pack()
 
-        cart = Button(ui.root, text="item in cart", command=ui.cartHandle)
-        cart.pack()
+        ttk.Button(ui.root, text="item in cart", command=ui.cartHandle).pack()
 
-        back = Button(ui.root, text="back", command=ui.homePage)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
     @staticmethod
     def searchHandle(keyword):
@@ -221,34 +205,27 @@ class ui:
             detail = Label(ui.root, text=product[4])
             detail.pack()
 
-            quantity_label = Label(ui.root, text="quantity")
-            quantity_label.pack()
+            Label(ui.root, text="quantity").pack()
             quantity = Entry(ui.root)
             quantity.insert(INSERT, "1")
             quantity.pack()
 
-            add_to_cart = Button(ui.root, text="add to cart", command=lambda: ui.createItemHandle(
-                product, quantity.get(), label))
-            add_to_cart.pack()
+            ttk.Button(ui.root, text="add to cart", command=lambda: ui.createItemHandle(
+                product, quantity.get(), label)).pack()
 
-            review_label = Label(ui.root, text="write your review here")
-            review_label.pack()
+            Label(ui.root, text="write your review here").pack()
             review = Entry(ui.root)
             review.pack()
 
-            rating_label = Label(ui.root, text="rating")
-            rating_label.pack()
+            Label(ui.root, text="rating").pack()
             rating = Entry(ui.root)
             rating.pack()
 
-            review_button = Button(ui.root, text="review", command=lambda: ui.reviewHandle(
-                product, review.get(), rating.get(), label))
-            review_button.pack()
+            ttk.Button(ui.root, text="review", command=lambda: ui.reviewHandle(product, review.get(), rating.get(), label)).pack()
         else:
             label = Label(ui.root, text="404 product not founded")
             label.pack()
-        back = Button(ui.root, text="back", command=ui.customerService)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.customerService).pack()
 
     @staticmethod
     def createItemHandle(product, quantity, label):
@@ -292,17 +269,14 @@ class ui:
         for item in ui.cart:
             ui.orderItemDetail(item)
 
-        back = Button(ui.root, text="back", command=ui.customerService)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.customerService).pack()
 
     @staticmethod
     def orderItemDetail(item):
         info = Label(ui.root, text=str(item[1]) + " " + item[2])
         info.pack()
 
-        delete = Button(ui.root, text="delete",
-                        command=lambda: ui.deleteItemHandle(item[0]))
-        delete.pack()
+        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteItemHandle(item[0])).pack()
 
     @staticmethod
     def deleteItemHandle(oiid):
@@ -320,12 +294,9 @@ class ui:
         receiver = Entry(ui.root)
         receiver.pack()
 
-        chat_button = Button(ui.root, text="open chat room",
-                             command=lambda: ui.openChatroom(receiver.get(), label))
-        chat_button.pack()
+        ttk.Button(ui.root, text="open chat room", command=lambda: ui.openChatroom(receiver.get(), label)).pack()
 
-        back = Button(ui.root, text="back", command=ui.homePage)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
         label = Label(ui.root, text="", fg="red")
         label.pack()
@@ -342,8 +313,7 @@ class ui:
             return
 
         ui.clear()
-        back = Button(ui.root, text="back", command=ui.homePage)
-        back.pack()
+        ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
         ui.chatroom(ui.root, ui.uid, receiver)
 
@@ -359,12 +329,9 @@ class ui:
         new_message = Entry(parent)
         new_message.pack()
 
-        label = Label(parent, text="chat with user" + str(receiver))
-        label.pack()
+        Label(parent, text="chat with user" + str(receiver)).pack()
 
-        send_button = Button(parent, text="send", command=lambda: ui.sendHandle(
-            new_message, sender, receiver))
-        send_button.pack()
+        ttk.Button(parent, text="send", command=lambda: ui.sendHandle(new_message, sender, receiver)).pack()
 
         messages = Label(parent)
         messages.pack()
@@ -381,5 +348,5 @@ class ui:
     @staticmethod
     def reloadMessages(messages):
         # TODO query chat
-        # messages.config(text=ui.chat_message)
+        messages.config(text=ui.chat_message)
         messages.after(1000, lambda: ui.reloadMessages(messages))
