@@ -31,7 +31,7 @@ class ui:
         welcome = Label(ui.root, text = "Welcome")
         welcome.pack()
 
-        username_label = Label(ui.root, text = "username")
+        username_label = Label(ui.root, text = "id")
         username_label.pack()
         username = Entry(ui.root)
         username.pack()
@@ -201,6 +201,19 @@ class ui:
             
             add_to_cart = Button(ui.root, text = "add to cart", command = lambda:ui.createItemHandle(product, int(quantity.get())))
             add_to_cart.pack()
+
+            review_label = Label(ui.root, text = "write your review here")
+            review_label.pack()
+            review = Entry(ui.root)
+            review.pack()
+            
+            rating_label = Label(ui.root, text = "rating")
+            rating_label.pack()
+            rating = Entry(ui.root)
+            rating.pack()
+            
+            review_button = Button(ui.root, text = "review", command = lambda:ui.reviewHandle(product, review.get(), rating.get()))
+            review_button.pack()
         else:
             label = Label(ui.root, text = "404 product not founded")
             label.pack()
@@ -222,6 +235,11 @@ class ui:
                         item[1] += quantity
         else:
             ui.cart.append([len(ui.cart),quantity,product[1],product[0],ui.uid]) #TODO add new orderItem to db
+        
+        ui.customerService();
+
+    def reviewHandle(product, reveiw, rating):
+        #TODO create new reveiw
         
         ui.customerService();
 
@@ -312,5 +330,3 @@ class ui:
         #TODO query chat
         messages.config(text = ui.chat_message)
         messages.after(1000, lambda:ui.reloadMessages(messages))
-
-
