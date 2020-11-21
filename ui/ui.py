@@ -8,7 +8,7 @@ class ui:
     name = ""
     
     products = [[0,"carrot", 50, 10, "peko peko", 2],[1,"shrimp", 100, 10, "a", 5],[2,"cucumber", 100, 10, "I hate cucumber", 1]]
-    cart = [[0,9,"shrimp",1,0],[1,10,"carrot",0,0]]
+    cart = []
     chat_message = "user0: Hello!\nuser1: Hello!\nuser0: How are You\nuser1: I'm horny"
 
     def __init__(self):
@@ -31,10 +31,10 @@ class ui:
         welcome = Label(ui.root, text = "Welcome")
         welcome.pack()
 
-        username_label = Label(ui.root, text = "id")
-        username_label.pack()
-        username = Entry(ui.root)
-        username.pack()
+        id_label = Label(ui.root, text = "id")
+        id_label.pack()
+        user_id = Entry(ui.root)
+        user_id.pack()
 
         password_label = Label(ui.root, text = "password")
         password_label.pack()
@@ -47,12 +47,17 @@ class ui:
         label = Label(ui.root, fg = "red")
         label.pack()
 
-        login_button.config(command = lambda:ui.loginHandle(username.get(), password.get(), label))
+        login_button.config(command = lambda:ui.loginHandle(user_id.get(), password.get(), label))
 
-    def loginHandle(username, password, label):
+    def loginHandle(user_id, password, label):
+        if (not ui.representsInt(user_id)):
+            label.config(text = "id must be integer")
+            return
+
         #TODO query user_id and password
         if (password == "password"):
-            ui.name = username
+            ui.uid = user_id
+            ui.name = user_id
             ui.homePage()
             return
         label.config(text = "your password is incorrect")
@@ -183,6 +188,9 @@ class ui:
                 break
 
         if product:
+            label = Label(ui.root, text = "", fg = "red")
+            label.pack()
+            
             ratingText = "rating : "
             for i in range(product[5]):
                 ratingText += "*"
@@ -193,13 +201,13 @@ class ui:
             detail = Label(ui.root, text = product[4])
             detail.pack()
 
-            quantity = Label(ui.root, text = "quantity")
-            quantity.pack()
+            quantity_label = Label(ui.root, text = "quantity")
+            quantity_label.pack()
             quantity = Entry(ui.root)
             quantity.insert(INSERT, "1")
             quantity.pack()
             
-            add_to_cart = Button(ui.root, text = "add to cart", command = lambda:ui.createItemHandle(product, int(quantity.get())))
+            add_to_cart = Button(ui.root, text = "add to cart", command = lambda:ui.createItemHandle(product, quantity.get(), label))
             add_to_cart.pack()
 
             review_label = Label(ui.root, text = "write your review here")
@@ -212,7 +220,7 @@ class ui:
             rating = Entry(ui.root)
             rating.pack()
             
-            review_button = Button(ui.root, text = "review", command = lambda:ui.reviewHandle(product, review.get(), rating.get()))
+            review_button = Button(ui.root, text = "review", command = lambda:ui.reviewHandle(product, review.get(), rating.get(), label))
             review_button.pack()
         else:
             label = Label(ui.root, text = "404 product not founded")
@@ -220,7 +228,11 @@ class ui:
         back = Button(ui.root, text = "back", command = ui.customerService)
         back.pack()
 
-    def createItemHandle(product, quantity):
+    def createItemHandle(product, quantity, label):
+        if (not ui.representsInt(quantity)):
+            label.config(text = "quantity must be integer")
+            return
+        quantity = int(quantity)
         #if that the product is already in the cart already, update OrderItem. Else, add new OrderItem.
         chk = False
         for item in ui.cart:
@@ -232,11 +244,16 @@ class ui:
             #TODO increase quantity
             item[1] += quantity
         else:
+            #TODO insert orderItem
             ui.cart.append([len(ui.cart),quantity,product[1],product[0],ui.uid]) #TODO add new orderItem to db
         
         ui.customerService();
 
-    def reviewHandle(product, reveiw, rating):
+    def reviewHandle(product, reveiw, rating, label):
+        if (not ui.representsInt(rating)):
+            label.config(text = "rating must be integer")
+            return
+        rating = int(rating)
         #TODO create new reveiw
         
         ui.customerService();
@@ -285,7 +302,7 @@ class ui:
         if (not ui.representsInt(receiver)):
             label.config(text = "id must be integer")
             return
-
+        receiver = int(receiver)
         #TODO query user_id
         if (False):
             label.config(text = "id is not valid")
@@ -295,13 +312,13 @@ class ui:
         back = Button(ui.root, text = "back", command = ui.homePage)
         back.pack()
         
-        ui.chatroom(ui.root, ui.uid, int(receiver))
+        ui.chatroom(ui.root, ui.uid, receiver)
         
         receiver_chat = Tk()
-        receiver_chat.title(receiver + "'s chat")
+        receiver_chat.title(str(receiver) + "'s chat")
         receiver_chat.geometry("400x400")
         
-        ui.chatroom(receiver_chat, int(receiver), ui.uid)
+        ui.chatroom(receiver_chat, receiver, ui.uid)
         receiver_chat.mainloop()
 
     def chatroom(parent, sender, receiver):
@@ -328,3 +345,4 @@ class ui:
         #TODO query chat
         messages.config(text = ui.chat_message)
         messages.after(1000, lambda:ui.reloadMessages(messages))
+
