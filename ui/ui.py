@@ -227,12 +227,10 @@ class ui:
             if item[3] == product[0]:
                 if item[4] == ui.uid:
                     chk = True
+                    break
         if chk:
             #TODO increase quantity
-            for item in ui.cart:
-                if item[3] == product[0]:
-                    if item[4] == ui.uid:
-                        item[1] += quantity
+            item[1] += quantity
         else:
             ui.cart.append([len(ui.cart),quantity,product[1],product[0],ui.uid]) #TODO add new orderItem to db
         
