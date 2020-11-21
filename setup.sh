@@ -1,7 +1,7 @@
 #!/bin/bash
 MYSQL_USER=root
 MYSQL_HOST=localhost
-MYSQL_PASSWORD=Ys34_Kc9
+MYSQL_PASSWORD=
 MYSQL_DATABASE=pugsod
 
 # setup database
