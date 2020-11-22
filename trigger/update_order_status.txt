@@ -5,7 +5,7 @@ FOR EACH ROW
 BEGIN
 IF (new.status = 'S') THEN
 	UPDATE ordert
-	SET state = 'P'
+	SET state = 'S'
 	WHERE payment_id = new.payment_id;
 END IF;
 END //
