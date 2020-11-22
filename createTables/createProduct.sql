@@ -6,7 +6,7 @@ CREATE TABLE product(
 	product_detail TEXT(500),
 	price INT not null,
 	amount INT not null,
-	avg_rating FLOAT(2,1) not null,
+	avg_rating FLOAT(2,1) DEFAULT 0,
   update_at DATETIME not null DEFAULT CURRENT_TIMESTAMP, 
   primary key(product_id) 
 
