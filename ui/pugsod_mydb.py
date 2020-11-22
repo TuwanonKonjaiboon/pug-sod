@@ -7,7 +7,7 @@ try:
                                          user='',
                                          password='')
 
-    if connect.is_connected():
+    if connection.is_connected():
         db_Info = connection.get_server_info()
         print("Connected to MySQL Server version ", db_Info)
         cursor = connection.cursor()

@@ -340,7 +340,7 @@ class ui:
     @staticmethod
     def sendHandle(message, sender, receiver):
         # TODO add chat message
-        chatdb.insert_chat(sender, receiver, message)
+        # chatdb.insert_chat(sender, receiver, message)
         #ui.chat_message += '\nuser' + str(sender) + ": " + message.get()
 
         message.delete('0', END)
