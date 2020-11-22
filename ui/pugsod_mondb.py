@@ -63,9 +63,9 @@ class ChatDB:
 chatdb = ChatDB()
 
 # # Example read
-val = chatdb.read_chat(1, 2)
-for x in val:
-    print(x.timestamp)
+#val = chatdb.read_chat(1, 2)
+#for x in val:
+#    print(x.timestamp)
 
 # # Example
 # chatdb.insert_chat(1, 2, "Hello! 2")

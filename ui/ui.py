@@ -2,7 +2,7 @@
 
 from tkinter import *
 from tkinter import ttk
-#from pugsod_mondb import chatdb
+from pugsod_mondb import chatdb
 
 
 class ui:
@@ -55,14 +55,14 @@ class ui:
 
     @staticmethod
     def loginHandle(user_id, password, label):
-        if (not ui.representsInt(user_id)):
+        if not ui.representsInt(user_id):
             label.config(text="id must be integer")
             return
-
+        user_id = int(user_id)
         # TODO query user_id and password
-        if (password == "password"):
+        if password == "password":
             ui.uid = user_id
-            ui.name = user_id
+            ui.name = str(user_id)
             ui.homePage()
             return
         label.config(text="your password is incorrect")
@@ -303,17 +303,20 @@ class ui:
 
     @staticmethod
     def openChatroom(receiver, label):
-        if (not ui.representsInt(receiver)):
+        if not ui.representsInt(receiver):
             label.config(text="id must be integer")
             return
         receiver = int(receiver)
+        if receiver == ui.uid:
+            label.config(text="you can't chat with yourself")
+            return
         # TODO query user_id
         if (False):
             label.config(text="id is not valid")
             return
 
         ui.clear()
-        ttk.Button(ui.root, text="back", command=ui.homePage).pack()
+        ttk.Button(ui.root, text="back", command=ui.chatHandle).pack()
 
         ui.chatroom(ui.root, ui.uid, receiver)
 
@@ -340,13 +343,18 @@ class ui:
     @staticmethod
     def sendHandle(message, sender, receiver):
         # TODO add chat message
-        # chatdb.insert_chat(sender, receiver, message)
-        #ui.chat_message += '\nuser' + str(sender) + ": " + message.get()
+        chatdb.insert_chat(sender, receiver, message.get())
 
         message.delete('0', END)
 
     @staticmethod
-    def reloadMessages(messages):
+    def reloadMessages(message_label):
+        message_text = ""
         # TODO query chat
-        messages.config(text=ui.chat_message)
-        messages.after(1000, lambda: ui.reloadMessages(messages))
+        chat_messages = chatdb.read_chat(1, 2)
+        if chat_messages:
+            for m in chat_messages:
+                message_text += "user" + str(m.sender) + ": " + m.msg + "\n"
+        
+        message_label.config(text = message_text)
+        message_label.after(1000, lambda: ui.reloadMessages(message_label))
