@@ -2,7 +2,9 @@
 
 from tkinter import *
 from tkinter import ttk
+
 from pugsod_mondb import chatdb
+from pugsod_mydb import sql
 
 
 class ui:
@@ -72,11 +74,16 @@ class ui:
         ui.clear()
         Label(ui.root, text="Welcome " + ui.name).pack()
 
-        ttk.Button(ui.root, text="product service",
-               command=ui.productService).pack()
+        product_service = ttk.Button(ui.root, text="product service", command=ui.productService)
+        product_service.pack()
+        if False:
+            product_service["state"] = DISABLED
 
-        ttk.Button(ui.root, text="customer service",
-               command=ui.customerService).pack()
+        customer_service = ttk.Button(ui.root, text="customer service",
+               command=ui.customerService)
+        customer_service.pack()
+        if False:
+            customer_service["state"] = DISABLED
 
         ttk.Button(ui.root, text="chat", command=ui.chatHandle).pack()
 
@@ -124,6 +131,7 @@ class ui:
     def createProductHandle(title, price, amount, detail):
 
         # TODO add new product to db
+        
         ui.products.append([len(ui.products), title, price, amount, detail, 0])
 
         ui.productService()
@@ -131,8 +139,9 @@ class ui:
     @staticmethod
     def viewProductHandle():
         ui.clear()
-        # TODO query product
-        for product in ui.products:
+        # query product
+        products = sql.query("SELECT * FROM product WHERE seller_id = " + str(ui.uid))
+        for product in products:
             ui.productDetail(product)
 
         ttk.Button(ui.root, text="back", command=ui.productService).pack()
@@ -140,17 +149,17 @@ class ui:
     @staticmethod
     def productDetail(product):
         ratingText = "rating : "
-        if int(product[5]) == 0:
+        if int(product[6]) == 0:
             ratingText += "-"
         else:
-            for i in range(product[5]):
+            for i in range(int(product[6])):
                 ratingText += "*"
 
-        info = Label(ui.root, text=product[1] +
-                     " " + str(product[2]) + "$ " + ratingText)
+        info = Label(ui.root, text=product[2] +
+                     " " + str(product[4]) + "$ " + ratingText)
         info.pack()
 
-        detail = Label(ui.root, text=product[4])
+        detail = Label(ui.root, text=product[3])
         detail.pack()
 
         ttk.Button(ui.root, text="delete", command=lambda: ui.deleteProductHandle(product[0])).pack()
@@ -182,26 +191,27 @@ class ui:
     def searchHandle(keyword):
         ui.clear()
 
-        # TODO query product info
-        product = None
-        for i in range(len(ui.products)):
-            if ui.products[i][1] == keyword:
-                product = ui.products[i]
-                break
-
-        if product:
+        # query product info
+        
+        products = sql.query("SELECT * FROM product WHERE product_title = '" + keyword + "'")
+        if products:
+            product = products[0]
+            
             label = Label(ui.root, text="", fg="red")
             label.pack()
 
             ratingText = "rating : "
-            for i in range(product[5]):
-                ratingText += "*"
+            if int(product[6]) == 0:
+                ratingText += "-"
+            else:
+                for i in range(int(product[6])):
+                    ratingText += "*"
 
             info = Label(
-                ui.root, text=product[1] + " " + str(product[2]) + "$ " + ratingText)
+                ui.root, text=product[2] + " " + str(product[4]) + "$ " + ratingText)
             info.pack()
 
-            detail = Label(ui.root, text=product[4])
+            detail = Label(ui.root, text=product[3])
             detail.pack()
 
             Label(ui.root, text="quantity").pack()
@@ -246,7 +256,7 @@ class ui:
             # TODO insert orderItem
             # TODO add new orderItem to db
             ui.cart.append(
-                [len(ui.cart), quantity, product[1], product[0], ui.uid])
+                [len(ui.cart), quantity, product[2], product[0], ui.uid])
 
         ui.customerService()
 
@@ -265,7 +275,8 @@ class ui:
         ui.clear()
 
         # TODO query orderItem
-        for item in ui.cart:
+        cart = sql.query("SELECT * FROM orderItem WHERE customer_id = " + str(ui.uid) + " AND order_id IS NULL")
+        for item in cart:
             ui.orderItemDetail(item)
 
         ttk.Button(ui.root, text="back", command=ui.customerService).pack()
@@ -309,8 +320,8 @@ class ui:
         if receiver == ui.uid:
             label.config(text="you can't chat with yourself")
             return
-        # TODO query user_id
-        if (False):
+        # query user_id
+        if (not len(sql.query("SELECT * FROM user WHERE user_id = " + str(ui.uid)))):
             label.config(text="id is not valid")
             return
 
@@ -357,3 +368,6 @@ class ui:
         
         message_label.config(text = message_text)
         message_label.after(1000, lambda: ui.reloadMessages(message_label, sender, receiver))
+
+ui()
+ui.root.mainloop()
