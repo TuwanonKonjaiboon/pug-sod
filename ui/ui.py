@@ -13,7 +13,6 @@ class ui:
     products = [[0, "carrot", 50, 10, "peko peko", 2], [
         1, "shrimp", 100, 10, "a", 5], [2, "cucumber", 100, 10, "I hate cucumber", 1]]
     cart = []
-    chat_message = "user0: Hello!\nuser1: Hello!\nuser0: How are You\nuser1: I'm horny"
 
     def __init__(self):
         ui.root.title("Pugsod")
@@ -338,7 +337,7 @@ class ui:
 
         messages = Label(parent)
         messages.pack()
-        ui.reloadMessages(messages)
+        ui.reloadMessages(messages, sender, receiver)
 
     @staticmethod
     def sendHandle(message, sender, receiver):
@@ -348,13 +347,13 @@ class ui:
         message.delete('0', END)
 
     @staticmethod
-    def reloadMessages(message_label):
+    def reloadMessages(message_label, sender, receiver):
         message_text = ""
         # TODO query chat
-        chat_messages = chatdb.read_chat(1, 2)
+        chat_messages = chatdb.read_chat(sender, receiver)
         if chat_messages:
             for m in chat_messages:
                 message_text += "user" + str(m.sender) + ": " + m.msg + "\n"
         
         message_label.config(text = message_text)
-        message_label.after(1000, lambda: ui.reloadMessages(message_label))
+        message_label.after(1000, lambda: ui.reloadMessages(message_label, sender, receiver))

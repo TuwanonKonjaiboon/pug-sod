@@ -48,6 +48,9 @@ class ChatDB:
         try:
             assert userId1 != userId2
 
+            if userId1 > userId2:
+                userId1, userId2 = userId2, userId1
+
             result = collection.find_one(
                 {'user.user1': userId1, 'user.user2': userId2})
 
