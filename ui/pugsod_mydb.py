@@ -5,15 +5,10 @@ from os import environ
 from mysql.connector import Error
 from datetime import datetime, date
 
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'be1234er'
-MYSQL_HOST = 'localhost'
-MYSQL_DATABASE = 'test'
-
-#MYSQL_USER = environ['MYSQL_USER']
-#MYSQL_PASSWORD = environ['MYSQL_PASSWORD']
-#MYSQL_HOST = environ['MYSQL_HOST']
-#MYSQL_DATABASE = environ['MYSQL_DATABASE']
+MYSQL_USER = environ['MYSQL_USER']
+MYSQL_PASSWORD = environ['MYSQL_PASSWORD']
+MYSQL_HOST = environ['MYSQL_HOST']
+MYSQL_DATABASE = environ['MYSQL_DATABASE']
 
 class UserDB:
 
@@ -426,22 +421,15 @@ class ReviewDB:
             )
             cursor = connection.cursor()
 
-            assert comment != ""
-
             cursor.execute(f"""
                 INSERT INTO review (customer_id, product_id, rating, comment, create_at)
                 VALUES (
                 {user_id},
                 {product_id},
                 {rating},
-                {comment},
-                {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-            ) ON DUPLICATE KEY UPDATE
-                customer_id = {user_id},
-                product_id = {product_id},
-                rating = {rating},
-                comment = {comment},
-                create_at = {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+                "{comment}",
+                "{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
             """)
 
             connection.commit()
@@ -468,7 +456,7 @@ class ReviewDB:
                 SELECT *
                 FROM 
                     review 
-                WHERE {'AND'.join([
+                WHERE {' AND '.join([
                     f'{key}="{val}"' for key, val in kwargs.items()
                 ])}
                 ORDER BY

@@ -3,11 +3,12 @@ from tkinter import ttk
 import copy
 
 from pugsod_mondb import chatdb
-from services import UserProvider, ProductProvider, OrderItemProvider
+from services import UserProvider, ProductProvider, OrderItemProvider, ReviewProvider
 
 userBloc = UserProvider()
 prodBloc = ProductProvider()
 oiBloc = OrderItemProvider()
+revBloc = ReviewProvider()
 
 class ui:
     root = Tk()
@@ -216,16 +217,15 @@ class ui:
         ttk.Button(ui.root, text="add to cart", command=lambda: ui.createItemHandle(
             product, quantity.get(), label)).pack()
 
-        # TODO soon
-        #Label(ui.root, text="write your review here").pack()
-        #review = Entry(ui.root)
-        #review.pack()
+        Label(ui.root, text="write your review here").pack()
+        review = Entry(ui.root)
+        review.pack()
 
-        #Label(ui.root, text="rating").pack()
-        #rating = Entry(ui.root)
-        #rating.pack()
+        Label(ui.root, text="rating").pack()
+        rating = Entry(ui.root)
+        rating.pack()
 
-        #ttk.Button(ui.root, text="review", command=lambda: ui.reviewHandle(product, review.get(), rating.get(), label)).pack()
+        ttk.Button(ui.root, text="review", command=lambda: ui.reviewHandle(product, review.get(), rating.get(), label)).pack()
         ttk.Button(ui.root, text="back", command=ui.customerService).pack()
         
     @staticmethod
@@ -235,7 +235,6 @@ class ui:
             return
         quantity = int(quantity)
         # if that the product is already in the cart already, update OrderItem. Else, add new OrderItem.
-        chk = False
         res = oiBloc.get_order_item(product.id)
         if res[1]:
             oiBloc.update_quantity(res[1][0].id, res[1][0].quantity + quantity)
@@ -246,11 +245,17 @@ class ui:
 
     @staticmethod
     def reviewHandle(product, reveiw, rating, label):
+        if (revBloc.get_your_product_reviews(product.id)[1]):
+            label.config(text="you've already review this product")
+            return
+        if (reveiw == ""):
+            label.config(text="write the comment first")
+            return
         if (not ui.representsInt(rating)):
             label.config(text="rating must be integer")
             return
         rating = int(rating)
-        # TODO create new reveiw
+        revBloc.write_review(product.id, rating, reveiw)
 
         ui.customerService()
 

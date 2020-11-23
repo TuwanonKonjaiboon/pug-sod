@@ -1,4 +1,3 @@
-import asyncio
 from ui import *
 
 def main():

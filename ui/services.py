@@ -239,8 +239,8 @@ class ReviewProvider:
     def __init__(self):
         self.revdb = ReviewDB()
 
-    def get_product_reviews(self, product_id):
-        res = self.revdb.readDB(product_id=product_id)
+    def get_your_product_reviews(self, product_id):
+        res = self.revdb.readDB(product_id=product_id, customer_id=UserProvider.user.id)
 
         if res['status'] == 1:
             return (1, res['data'])
