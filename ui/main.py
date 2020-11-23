@@ -1,9 +1,10 @@
 import asyncio
 from ui import *
 
-async def main():
+def main():
 
     ui()
     ui.root.mainloop()
 
-asyncio.run(main())
+
+main()

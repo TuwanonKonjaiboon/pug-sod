@@ -1,6 +1,6 @@
 import settings
 import mysql.connector
-import asyncio
+import io
 from os import environ
 from mysql.connector import Error
 from datetime import datetime, date
@@ -201,7 +201,7 @@ class ProductDB:
                     WHERE  {' AND '.join([
                             f'{key}="{val}"' for key, val in kwargs.items()
                         ])}""")
-            records = cursor.fetchone()
+            records = cursor.fetchall()
 
             # there is no data to delete
             if records == None:
@@ -407,6 +407,85 @@ class OrderItemDB:
         except:
             connection.rollback()
             return {'status': 0, 'msg': 'delete fail'}
+        finally:
+            if connection.is_connected:
+                connection.close()
+                cursor.close()
+
+
+class ReviewDB:
+
+    def createDB(self, user_id, product_id, rating, comment):
+        try:
+
+            connection = mysql.connector.connect(
+                host=MYSQL_HOST,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                database=MYSQL_DATABASE
+            )
+            cursor = connection.cursor()
+
+            assert comment != ""
+
+            cursor.execute(f"""
+                INSERT INTO review (customer_id, product_id, rating, comment, create_at)
+                VALUES (
+                {user_id},
+                {product_id},
+                {rating},
+                {comment},
+                {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            ) ON DUPLICATE KEY UPDATE
+                customer_id = {user_id},
+                product_id = {product_id},
+                rating = {rating},
+                comment = {comment},
+                create_at = {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            """)
+
+            connection.commit()
+
+            return {'status': 1, 'msg': 'create success'}
+        except:
+            connection.rollback()
+            return {'status': 0, 'msg': 'create fail'}
+        finally:
+            if connection.is_connected:
+                connection.close()
+                cursor.close()
+
+    def readDB(self, size=None, **kwargs):
+        try:
+            connection = mysql.connector.connect(
+                host=MYSQL_HOST,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                database=MYSQL_DATABASE
+            )
+
+            q = f"""
+                SELECT *
+                FROM 
+                    review 
+                WHERE {'AND'.join([
+                    f'{key}="{val}"' for key, val in kwargs.items()
+                ])}
+                ORDER BY
+                    create_at DESC
+            """
+
+            if type(size) is int:
+                q = q + "\tLIMIT {}".format(size)
+
+            cursor = connection.cursor()
+            cursor.execute(q)
+
+            res = cursor.fetchall()
+
+            return {'status': 1, 'msg': 'read success', 'data': res}
+        except:
+            return {'status': 0, 'msg': 'read fail'}
         finally:
             if connection.is_connected:
                 connection.close()

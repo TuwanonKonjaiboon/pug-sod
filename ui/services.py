@@ -1,6 +1,6 @@
-import asyncio
+import io
 
-from pugsod_mydb import UserDB, ProductDB, OrderItemDB
+from pugsod_mydb import UserDB, ProductDB, OrderItemDB, ReviewDB
 from model import UserDAO, ProductDAO, OrderItemDAO
 
 
@@ -232,3 +232,26 @@ class OrderItemProvider:
             ])
         else:
             return (0, [])
+
+
+class ReviewProvider:
+
+    def __init__(self):
+        self.revdb = ReviewDB()
+
+    def get_product_reviews(self, product_id):
+        res = self.revdb.readDB(product_id=product_id)
+
+        if res['status'] == 1:
+            return (1, res['data'])
+        else:
+            return (0, res['msg'])
+
+    def write_review(self, product_id, rating, comment):
+        res = self.revdb.createDB(UserProvider.user.id,
+                                  product_id, rating, comment)
+
+        if res['status'] == 1:
+            return (1, res['msg'])
+        else:
+            return (0, res['msg'])
