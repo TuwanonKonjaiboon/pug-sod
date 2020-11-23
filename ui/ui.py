@@ -1,24 +1,20 @@
-# This code is shit, but it's work (on my machine)
-
 from tkinter import *
 from tkinter import ttk
+import copy
 
 from pugsod_mondb import chatdb
-from pugsod_mydb import sql
+from services import UserProvider, ProductProvider, OrderItemProvider
 
+userBloc = UserProvider()
+prodBloc = ProductProvider()
+oiBloc = OrderItemProvider()
 
 class ui:
     root = Tk()
-    uid = 0
-    name = ""
-
-    products = [[0, "carrot", 50, 10, "peko peko", 2], [
-        1, "shrimp", 100, 10, "a", 5], [2, "cucumber", 100, 10, "I hate cucumber", 1]]
-    cart = []
 
     def __init__(self):
         ui.root.title("Pugsod")
-        ui.root.geometry("400x400")
+        ui.root.geometry("400x600")
         ui.startPage()
 
     @staticmethod
@@ -40,65 +36,51 @@ class ui:
 
         Label(ui.root, text="Welcome").pack()
 
-        Label(ui.root, text="id").pack()
-        user_id = Entry(ui.root)
-        user_id.pack()
+        Label(ui.root, text="username").pack()
+        username = Entry(ui.root)
+        username.pack()
 
         Label(ui.root, text="password").pack()
         password = Entry(ui.root, show="*")
         password.pack()
 
         ttk.Button(ui.root, text="login", command=lambda: ui.loginHandle(
-            user_id.get(), password.get(), label)).pack()
+            username.get(), password.get(), label)).pack()
 
         label = Label(ui.root, fg="red")
         label.pack()
 
     @staticmethod
-    def loginHandle(user_id, password, label):
-        if not ui.representsInt(user_id):
-            label.config(text="id must be integer")
-            return
-        user_id = int(user_id)
-        # TODO query user_id and password
-        if password == "password":
-            ui.uid = user_id
-            ui.name = str(user_id)
+    def loginHandle(username, password, label):
+        res = userBloc.login(username, password)
+        if res[0]:
             ui.homePage()
             return
-        label.config(text="your password is incorrect")
+        label.config(text="id or password is incorrect")
 
     # home
     @staticmethod
     def homePage():
         ui.clear()
-        Label(ui.root, text="Welcome " + ui.name).pack()
+        Label(ui.root, text="Hi " + userBloc.user.name).pack()
 
         product_service = ttk.Button(ui.root, text="product service", command=ui.productService)
         product_service.pack()
-        if False:
-            product_service["state"] = DISABLED
 
         customer_service = ttk.Button(ui.root, text="customer service",
                command=ui.customerService)
         customer_service.pack()
-        if False:
-            customer_service["state"] = DISABLED
 
         ttk.Button(ui.root, text="chat", command=ui.chatHandle).pack()
-
         ttk.Button(ui.root, text="logout", command=ui.startPage).pack()
 
     # productService
     @staticmethod
     def productService():
         ui.clear()
-
         ttk.Button(ui.root, text="create new product", command=ui.newProduct).pack()
-
         ttk.Button(ui.root, text="view products",
                               command=ui.viewProductHandle).pack()
-
         ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
     @staticmethod
@@ -124,53 +106,44 @@ class ui:
         detail.pack()
 
         ttk.Button(ui.root, text="create", command=lambda: ui.createProductHandle(title.get(), int(price.get()), int(amount.get()), detail.get())).pack()
-
         ttk.Button(ui.root, text="back", command=ui.productService).pack()
 
     @staticmethod
     def createProductHandle(title, price, amount, detail):
-
-        # TODO add new product to db
-        
-        ui.products.append([len(ui.products), title, price, amount, detail, 0])
-
+        prodBloc.create(title, detail, int(price), int(amount))
         ui.productService()
 
     @staticmethod
     def viewProductHandle():
         ui.clear()
-        # query product
-        products = sql.query("SELECT * FROM product WHERE seller_id = " + str(ui.uid))
-        for product in products:
-            ui.productDetail(product)
+        res = prodBloc.read(size = 7)
+        if res[0]:
+            for product in res[1]:
+                ui.productDetail(product)
 
         ttk.Button(ui.root, text="back", command=ui.productService).pack()
 
     @staticmethod
     def productDetail(product):
         ratingText = "rating : "
-        if int(product[6]) == 0:
+        if int(product.rating) == 0:
             ratingText += "-"
         else:
-            for i in range(int(product[6])):
+            for i in range(int(product.rating)):
                 ratingText += "*"
 
-        info = Label(ui.root, text=product[2] +
-                     " " + str(product[4]) + "$ " + ratingText)
+        info = Label(ui.root, text=product.name +
+                     " " + str(product.price) + "$ " + ratingText)
         info.pack()
 
-        detail = Label(ui.root, text=product[3])
+        detail = Label(ui.root, text=product.detail)
         detail.pack()
 
-        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteProductHandle(product[0])).pack()
+        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteProductHandle(product.id)).pack()
 
     @staticmethod
     def deleteProductHandle(pid):
-        # TODO delete product in db
-        for i in range(len(ui.products)):
-            if ui.products[i][0] == pid:
-                ui.products.pop(i)
-                break
+        prodBloc.delete_one_by_id(pid)
         ui.viewProductHandle()
 
     # customerService
@@ -182,60 +155,79 @@ class ui:
         search.pack(pady=10)
         
         ttk.Button(ui.root, text="search",command=lambda: ui.searchHandle(search.get())).pack()
-
         ttk.Button(ui.root, text="item in cart", command=ui.cartHandle).pack()
-
         ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
     @staticmethod
     def searchHandle(keyword):
         ui.clear()
-
-        # query product info
-        
-        products = sql.query("SELECT * FROM product WHERE product_title = '" + keyword + "'")
-        if products:
-            product = products[0]
-            
-            label = Label(ui.root, text="", fg="red")
-            label.pack()
-
-            ratingText = "rating : "
-            if int(product[6]) == 0:
-                ratingText += "-"
-            else:
-                for i in range(int(product[6])):
-                    ratingText += "*"
-
-            info = Label(
-                ui.root, text=product[2] + " " + str(product[4]) + "$ " + ratingText)
-            info.pack()
-
-            detail = Label(ui.root, text=product[3])
-            detail.pack()
-
-            Label(ui.root, text="quantity").pack()
-            quantity = Entry(ui.root)
-            quantity.insert(INSERT, "1")
-            quantity.pack()
-
-            ttk.Button(ui.root, text="add to cart", command=lambda: ui.createItemHandle(
-                product, quantity.get(), label)).pack()
-
-            Label(ui.root, text="write your review here").pack()
-            review = Entry(ui.root)
-            review.pack()
-
-            Label(ui.root, text="rating").pack()
-            rating = Entry(ui.root)
-            rating.pack()
-
-            ttk.Button(ui.root, text="review", command=lambda: ui.reviewHandle(product, review.get(), rating.get(), label)).pack()
+        res = prodBloc.search(query = keyword, size = 10)
+        #  It works, Don't touch it
+        if res[1]:
+            if len(res[1]) > 0:
+                ttk.Button(ui.root, text=res[1][0].name, command=lambda: ui.veiwResult(res[1][0])).pack()
+            if len(res[1]) > 1:
+                ttk.Button(ui.root, text=res[1][1].name, command=lambda: ui.veiwResult(res[1][1])).pack()
+            if len(res[1]) > 2:
+                ttk.Button(ui.root, text=res[1][2].name, command=lambda: ui.veiwResult(res[1][2])).pack()
+            if len(res[1]) > 3:
+                ttk.Button(ui.root, text=res[1][3].name, command=lambda: ui.veiwResult(res[1][3])).pack()
+            if len(res[1]) > 4:
+                ttk.Button(ui.root, text=res[1][4].name, command=lambda: ui.veiwResult(res[1][4])).pack()
+            if len(res[1]) > 5:
+                ttk.Button(ui.root, text=res[1][5].name, command=lambda: ui.veiwResult(res[1][5])).pack()
+            if len(res[1]) > 6:
+                ttk.Button(ui.root, text=res[1][6].name, command=lambda: ui.veiwResult(res[1][6])).pack()
+            if len(res[1]) > 7:
+                ttk.Button(ui.root, text=res[1][7].name, command=lambda: ui.veiwResult(res[1][7])).pack()
+            if len(res[1]) > 8:
+                ttk.Button(ui.root, text=res[1][8].name, command=lambda: ui.veiwResult(res[1][8])).pack()
+            if len(res[1]) > 9:
+                ttk.Button(ui.root, text=res[1][9].name, command=lambda: ui.veiwResult(res[1][9])).pack()
         else:
             label = Label(ui.root, text="404 product not founded")
             label.pack()
         ttk.Button(ui.root, text="back", command=ui.customerService).pack()
 
+    @staticmethod
+    def veiwResult(product):
+        ui.clear()
+        label = Label(ui.root, text="", fg="red")
+        label.pack()
+
+        ratingText = "rating : "
+        if int(product.rating) == 0:
+            ratingText += "-"
+        else:
+            for i in range(int(product.rating)):
+                ratingText += "*"
+
+        info = Label(
+            ui.root, text=product.name + " " + str(product.price) + "$ " + ratingText)
+        info.pack()
+
+        Label(ui.root, text=product.detail).pack()
+
+        Label(ui.root, text="quantity").pack()
+        quantity = Entry(ui.root)
+        quantity.insert(INSERT, "1")
+        quantity.pack()
+
+        ttk.Button(ui.root, text="add to cart", command=lambda: ui.createItemHandle(
+            product, quantity.get(), label)).pack()
+
+        # TODO soon
+        #Label(ui.root, text="write your review here").pack()
+        #review = Entry(ui.root)
+        #review.pack()
+
+        #Label(ui.root, text="rating").pack()
+        #rating = Entry(ui.root)
+        #rating.pack()
+
+        #ttk.Button(ui.root, text="review", command=lambda: ui.reviewHandle(product, review.get(), rating.get(), label)).pack()
+        ttk.Button(ui.root, text="back", command=ui.customerService).pack()
+        
     @staticmethod
     def createItemHandle(product, quantity, label):
         if (not ui.representsInt(quantity)):
@@ -244,19 +236,11 @@ class ui:
         quantity = int(quantity)
         # if that the product is already in the cart already, update OrderItem. Else, add new OrderItem.
         chk = False
-        for item in ui.cart:
-            if item[3] == product[0]:
-                if item[4] == ui.uid:
-                    chk = True
-                    break
-        if chk:
-            # TODO increase quantity
-            item[1] += quantity
+        res = oiBloc.get_order_item(product.id)
+        if res[1]:
+            oiBloc.update_quantity(res[1][0].id, res[1][0].quantity + quantity)
         else:
-            # TODO insert orderItem
-            # TODO add new orderItem to db
-            ui.cart.append(
-                [len(ui.cart), quantity, product[2], product[0], ui.uid])
+            oiBloc.create(product.id, quantity)
 
         ui.customerService()
 
@@ -273,28 +257,23 @@ class ui:
     @staticmethod
     def cartHandle():
         ui.clear()
-
-        # TODO query orderItem
-        cart = sql.query("SELECT * FROM orderItem WHERE customer_id = " + str(ui.uid) + " AND order_id IS NULL")
-        for item in cart:
+        res = oiBloc.get_all_order_items()
+        for item in res[1]:
             ui.orderItemDetail(item)
 
         ttk.Button(ui.root, text="back", command=ui.customerService).pack()
 
     @staticmethod
     def orderItemDetail(item):
-        info = Label(ui.root, text=str(item[1]) + " " + item[2])
+        res = prodBloc.read_id(item.prodId, size = 1)
+        info = Label(ui.root, text=str(item.quantity) + " " + res[1][0].name)
         info.pack()
 
-        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteItemHandle(item[0])).pack()
+        ttk.Button(ui.root, text="delete", command=lambda: ui.deleteItemHandle(item.id)).pack()
 
     @staticmethod
     def deleteItemHandle(oiid):
-        # TODO delete product in db
-        for i in range(len(ui.cart)):
-            if ui.cart[i][0] == oiid:
-                ui.cart.pop(i)
-                break
+        oiBloc.delete_one_by_id(oiid)
         ui.cartHandle()
 
     # chat
@@ -305,7 +284,6 @@ class ui:
         receiver.pack()
 
         ttk.Button(ui.root, text="open chat room", command=lambda: ui.openChatroom(receiver.get(), label)).pack()
-
         ttk.Button(ui.root, text="back", command=ui.homePage).pack()
 
         label = Label(ui.root, text="", fg="red")
@@ -317,24 +295,20 @@ class ui:
             label.config(text="id must be integer")
             return
         receiver = int(receiver)
-        if receiver == ui.uid:
+        if receiver == userBloc.user.id:
             label.config(text="you can't chat with yourself")
-            return
-        # query user_id
-        if (not len(sql.query("SELECT * FROM user WHERE user_id = " + str(ui.uid)))):
-            label.config(text="id is not valid")
             return
 
         ui.clear()
         ttk.Button(ui.root, text="back", command=ui.chatHandle).pack()
 
-        ui.chatroom(ui.root, ui.uid, receiver)
+        ui.chatroom(ui.root, userBloc.user.id, receiver)
 
         receiver_chat = Tk()
         receiver_chat.title(str(receiver) + "'s chat")
         receiver_chat.geometry("400x400")
 
-        ui.chatroom(receiver_chat, receiver, ui.uid)
+        ui.chatroom(receiver_chat, receiver, userBloc.user.id)
         receiver_chat.mainloop()
 
     @staticmethod
@@ -352,7 +326,6 @@ class ui:
 
     @staticmethod
     def sendHandle(message, sender, receiver):
-        # TODO add chat message
         chatdb.insert_chat(sender, receiver, message.get())
 
         message.delete('0', END)
@@ -360,7 +333,6 @@ class ui:
     @staticmethod
     def reloadMessages(message_label, sender, receiver):
         message_text = ""
-        # TODO query chat
         chat_messages = chatdb.read_chat(sender, receiver)
         if chat_messages:
             for m in chat_messages:
@@ -368,6 +340,3 @@ class ui:
         
         message_label.config(text = message_text)
         message_label.after(1000, lambda: ui.reloadMessages(message_label, sender, receiver))
-
-ui()
-ui.root.mainloop()

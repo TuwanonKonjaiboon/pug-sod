@@ -5,15 +5,19 @@ from os import environ
 from mysql.connector import Error
 from datetime import datetime, date
 
-MYSQL_USER = environ['MYSQL_USER']
-MYSQL_PASSWORD = environ['MYSQL_PASSWORD']
-MYSQL_HOST = environ['MYSQL_HOST']
-MYSQL_DATABASE = environ['MYSQL_DATABASE']
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'be1234er'
+MYSQL_HOST = 'localhost'
+MYSQL_DATABASE = 'test'
 
+#MYSQL_USER = environ['MYSQL_USER']
+#MYSQL_PASSWORD = environ['MYSQL_PASSWORD']
+#MYSQL_HOST = environ['MYSQL_HOST']
+#MYSQL_DATABASE = environ['MYSQL_DATABASE']
 
 class UserDB:
 
-    async def login(self, email, password):
+    def login(self, email, password):
         try:
 
             connection = mysql.connector.connect(
@@ -36,9 +40,6 @@ class UserDB:
             cursor.execute(q, (email, password))
             res = cursor.fetchone()
 
-            # test print user
-            print(res)
-
             if res != None:
                 return {'status': 1, 'msg': 'success', 'data': res}
             else:
@@ -54,12 +55,12 @@ class UserDB:
                 cursor.close()
 
     # dont need to anything
-    async def logout(self):
+    def logout(self):
         pass
 
 
 class ProductDB:
-    async def createDB(self, user_id, product_title, product_detail, price, amount):
+    def createDB(self, user_id, product_title, product_detail, price, amount):
         try:
 
             connection = mysql.connector.connect(
@@ -96,7 +97,7 @@ class ProductDB:
                 connection.close()
                 cursor.close()
 
-    async def readDB(self, query="", size=None):
+    def readDB(self, size=None, **kwargs):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -105,17 +106,14 @@ class ProductDB:
                 database=MYSQL_DATABASE
             )
 
-            q = """
-                SELECT * FROM product
-                WHERE
-                    product_title LIKE '%{0}%'
-                UNION
-                SELECT * FROM product
-                WHERE
-                    product_detail LIKE '%{0}%'
-                ORDER BY
-                    avg_rating DESC, product_title ASC
-            """.format(query)
+            q = f"""
+                SELECT *
+                FROM 
+                    product
+                WHERE {' AND '.join([
+                    f'{key}="{val}"' for key, val in kwargs.items()
+                ])}
+            """
 
             if type(size) is int:
                 q = q + "\tLIMIT {}".format(size)
@@ -133,7 +131,7 @@ class ProductDB:
                 connection.close()
                 cursor.close()
 
-    async def updateDB(self, product_id, **values):
+    def updateDB(self, product_id, **values):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -184,7 +182,7 @@ class ProductDB:
                 connection.close()
                 cursor.close()
 
-    async def deleteDB(self, size=1, **kwargs):
+    def deleteDB(self, size=1, **kwargs):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -200,7 +198,7 @@ class ProductDB:
                         * 
                     FROM 
                         product 
-                    WHERE  {'AND'.join([
+                    WHERE  {' AND '.join([
                             f'{key}="{val}"' for key, val in kwargs.items()
                         ])}""")
             records = cursor.fetchone()
@@ -211,7 +209,7 @@ class ProductDB:
 
             cursor.execute(f"""
                 DELETE FROM product 
-                WHERE {'AND'.join([
+                WHERE {' AND '.join([
                             f'{key}="{val}"' for key, val in kwargs.items()
                         ])}
                 LIMIT {size}
@@ -227,12 +225,46 @@ class ProductDB:
                 connection.close()
                 cursor.close()
 
-    async def searchDB(self, query="", size=None):
-        return self.readDB(query, size)
+    def searchDB(self, query="", size=None):
+        try:
+            connection = mysql.connector.connect(
+                host=MYSQL_HOST,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                database=MYSQL_DATABASE
+            )
+
+            q = """
+                SELECT * FROM product
+                WHERE
+                    product_title LIKE '%{0}%'
+                UNION
+                SELECT * FROM product
+                WHERE
+                    product_detail LIKE '%{0}%'
+                ORDER BY
+                    avg_rating DESC, product_title ASC
+            """.format(query)
+
+            if type(size) is int:
+                q = q + "\tLIMIT {}".format(size)
+
+            cursor = connection.cursor()
+            cursor.execute(q)
+
+            res = cursor.fetchall()
+
+            return {'status': 1, 'msg': 'read success', 'data': res}
+        except:
+            return {'status': 0, 'msg': 'read fail'}
+        finally:
+            if connection.is_connected:
+                connection.close()
+                cursor.close()
 
 
 class OrderItemDB:
-    async def createDB(self, user_id, product_id, quantity=1):
+    def createDB(self, user_id, product_id, quantity=1):
         try:
 
             connection = mysql.connector.connect(
@@ -259,7 +291,7 @@ class OrderItemDB:
                 connection.close()
                 cursor.close()
 
-    async def readDB(self, size=None, **kwargs):
+    def readDB(self, size=None, **kwargs):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -272,7 +304,7 @@ class OrderItemDB:
                 SELECT *
                 FROM 
                     orderItem 
-                WHERE {'AND'.join([
+                WHERE {' AND '.join([
                     f'{key}="{val}"' for key, val in kwargs.items()
                 ])}
             """
@@ -293,7 +325,7 @@ class OrderItemDB:
                 connection.close()
                 cursor.close()
 
-    async def updateDB(self, orderItem_id, **values):
+    def updateDB(self, orderItem_id, **values):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -337,7 +369,7 @@ class OrderItemDB:
                 connection.close()
                 cursor.close()
 
-    async def deleteDB(self, size=1, **kwargs):
+    def deleteDB(self, size=1, **kwargs):
         try:
             connection = mysql.connector.connect(
                 host=MYSQL_HOST,
@@ -364,7 +396,7 @@ class OrderItemDB:
 
             cursor.execute(f"""
                 DELETE FROM orderItem 
-                WHERE {'AND'.join([
+                WHERE {' AND '.join([
                             f'{key}="{val}"' for key, val in kwargs.items()
                         ])}
                 LIMIT {size}
